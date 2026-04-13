@@ -54,32 +54,35 @@ const ResultCard = ({ title, value, comment, good, tooltip }: { title: string, v
 export function CouplingCalculator() {
   const [activeTab, setActiveTab] = useState<string>("class");
 
-  // Class Cohesion
-  const [direct, setDirect] = useState<number>(3);
-  const [indirect, setIndirect] = useState<number>(2);
-  const [maxPossible, setMaxPossible] = useState<number>(10);
+  const defaultState = {
+    direct: 3, indirect: 2, maxPossible: 10,
+    variables: [{ id: 1, n: 3 }],
+    dit: 2, showDitTable: false,
+    directClient: 2, indirectClient: 1, serverClients: 4
+  };
+
+  const [state, setState] = useState(defaultState);
+  const { direct, indirect, maxPossible, variables, dit, showDitTable, directClient, indirectClient, serverClients } = state;
+
+  const setDirect = (direct: number) => setState(p => ({ ...p, direct }));
+  const setIndirect = (indirect: number) => setState(p => ({ ...p, indirect }));
+  const setMaxPossible = (maxPossible: number) => setState(p => ({ ...p, maxPossible }));
+  
+  const setVariables = (update: any) => setState(p => ({ ...p, variables: typeof update === 'function' ? update(p.variables) : update }));
+  const addVariable = () => setVariables((v: any) => [...v, { id: Date.now(), n: 0 }]);
+  const removeVariable = (id: number) => setVariables((v: any) => v.filter((item: any) => item.id !== id));
+  const updateVariable = (id: number, n: number) => setVariables((v: any) => v.map((item: any) => item.id === id ? { ...item, n } : item));
+
+  const setDit = (dit: number) => setState(p => ({ ...p, dit }));
+  const setShowDitTable = (showDitTable: boolean) => setState(p => ({ ...p, showDitTable }));
+  
+  const setDirectClient = (directClient: number) => setState(p => ({ ...p, directClient }));
+  const setIndirectClient = (indirectClient: number) => setState(p => ({ ...p, indirectClient }));
+  const setServerClients = (serverClients: number) => setState(p => ({ ...p, serverClients }));
 
   const tcc = maxPossible > 0 ? direct / maxPossible : 0;
   const lcc = maxPossible > 0 ? (direct + indirect) / maxPossible : 0;
-
-  // Data Cohesion (RCI)
-  const [variables, setVariables] = useState<{ id: number, n: number }[]>([{ id: 1, n: 3 }]);
-  
-  const addVariable = () => setVariables([...variables, { id: Date.now(), n: 0 }]);
-  const removeVariable = (id: number) => setVariables(variables.filter(v => v.id !== id));
-  const updateVariable = (id: number, n: number) => setVariables(variables.map(v => v.id === id ? { ...v, n } : v));
-
-  const totalRci = variables.reduce((sum, v) => sum + (v.n * (v.n - 1)) / 2, 0);
-
-  // DIT
-  const [dit, setDit] = useState<number>(2);
-  const [showDitTable, setShowDitTable] = useState(false);
-
-  // OO Reuse
-  const [directClient, setDirectClient] = useState<number>(2);
-  const [indirectClient, setIndirectClient] = useState<number>(1);
-  const [serverClients, setServerClients] = useState<number>(4);
-
+  const totalRci = variables.reduce((sum: number, v: any) => sum + (v.n * (v.n - 1)) / 2, 0);
   const clientReuse = directClient + indirectClient;
 
   // Persistence
@@ -88,22 +91,14 @@ export function CouplingCalculator() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed.direct !== undefined) setDirect(parsed.direct);
-        if (parsed.indirect !== undefined) setIndirect(parsed.indirect);
-        if (parsed.maxPossible !== undefined) setMaxPossible(parsed.maxPossible);
-        if (parsed.variables !== undefined) setVariables(parsed.variables);
-        if (parsed.dit !== undefined) setDit(parsed.dit);
-        if (parsed.directClient !== undefined) setDirectClient(parsed.directClient);
-        if (parsed.indirectClient !== undefined) setIndirectClient(parsed.indirectClient);
-        if (parsed.serverClients !== undefined) setServerClients(parsed.serverClients);
-      } catch (e) {}
+        setTimeout(() => setState(p => ({ ...p, ...parsed })), 0);
+      } catch {}
     }
   }, []);
 
   useEffect(() => {
-    const stateToSave = { direct, indirect, maxPossible, variables, dit, directClient, indirectClient, serverClients };
-    localStorage.setItem("couplingState", JSON.stringify(stateToSave));
-  }, [direct, indirect, maxPossible, variables, dit, directClient, indirectClient, serverClients]);
+    localStorage.setItem("couplingState", JSON.stringify(state));
+  }, [state]);
 
   const exportData = (format: 'json' | 'md') => {
     const data = {

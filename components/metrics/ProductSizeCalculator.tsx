@@ -54,39 +54,57 @@ const ResultCard = ({ title, value, comment, good, tooltip }: { title: string, v
 export function ProductSizeCalculator() {
   const [activeTab, setActiveTab] = useState<string>("basic");
 
-  // Basic Metrics
-  const [loc, setLoc] = useState<number>(1000);
-  const [cloc, setCloc] = useState<number>(200);
-  const [locL1, setLocL1] = useState<number>(0);
-  const [locL2, setLocL2] = useState<number>(0);
-  const [showQsm, setShowQsm] = useState(false);
+  const defaultState = {
+    loc: 1000, cloc: 200, locL1: 0, locL2: 0, showQsm: false,
+    n1: 12, n2: 20, N1: 45, N2: 30,
+    fpa: {
+      ilf: { count: 0, comp: 'avg' },
+      elf: { count: 0, comp: 'avg' },
+      ei: { count: 0, comp: 'avg' },
+      eo: { count: 0, comp: 'avg' },
+      eq: { count: 0, comp: 'avg' }
+    },
+    tdi: 35, showFpaTable: false,
+    ccMode: "edges" as "edges" | "decision", e: 10, n: 8, P: 1, d: 3, showCcTable: false
+  };
+
+  const [state, setState] = useState(defaultState);
+  const { loc, cloc, locL1, locL2, showQsm, n1, n2, N1, N2, fpa, tdi, showFpaTable, ccMode, e, n, P, d, showCcTable } = state;
+
+  const setLoc = (loc: number) => setState(p => ({ ...p, loc }));
+  const setCloc = (cloc: number) => setState(p => ({ ...p, cloc }));
+  const setLocL1 = (locL1: number) => setState(p => ({ ...p, locL1 }));
+  const setLocL2 = (locL2: number) => setState(p => ({ ...p, locL2 }));
+  const setShowQsm = (showQsm: boolean) => setState(p => ({ ...p, showQsm }));
+
+  const setN1 = (n1: number) => setState(p => ({ ...p, n1 }));
+  const setN2 = (n2: number) => setState(p => ({ ...p, n2 }));
+  const setCapN1 = (N1: number) => setState(p => ({ ...p, N1 }));
+  const setCapN2 = (N2: number) => setState(p => ({ ...p, N2 }));
+
+  const setFpa = (update: any) => setState(p => ({ ...p, fpa: typeof update === 'function' ? update(p.fpa) : update }));
+  const setTdi = (tdi: number) => setState(p => ({ ...p, tdi }));
+  const setShowFpaTable = (showFpaTable: boolean) => setState(p => ({ ...p, showFpaTable }));
+
+  const setCcMode = (ccMode: any) => setState(p => ({ ...p, ccMode }));
+  const setE = (e: number) => setState(p => ({ ...p, e }));
+  const setN = (n: number) => setState(p => ({ ...p, n }));
+  const setP = (P: number) => setState(p => ({ ...p, P }));
+  const setD = (d: number) => setState(p => ({ ...p, d }));
+  const setShowCcTable = (showCcTable: boolean) => setState(p => ({ ...p, showCcTable }));
+
+  const cc = ccMode === "edges" ? (e - n + 2 * P) : (d + P);
+  const ccd = loc > 0 ? Math.max(0, cc / loc) : 0;
 
   const commentDensity = loc > 0 ? (cloc / loc) : 0;
   const ncloc = Math.max(0, loc - cloc);
   const lgf = locL2 > 0 ? (locL1 / locL2) : 0;
-
-  // Halstead
-  const [n1, setN1] = useState<number>(12);
-  const [n2, setN2] = useState<number>(20);
-  const [N1, setCapN1] = useState<number>(45);
-  const [N2, setCapN2] = useState<number>(30);
 
   const halstead_n = n1 + n2;
   const halstead_N = N1 + N2;
   const halstead_V = halstead_n > 0 ? halstead_N * Math.log2(halstead_n) : 0;
   const halstead_D = n2 > 0 ? (n1 / 2) * (N2 / n2) : 0;
   const halstead_E = halstead_D * halstead_V;
-
-  // FPA
-  const [fpa, setFpa] = useState({
-    ilf: { count: 0, comp: 'avg' },
-    elf: { count: 0, comp: 'avg' },
-    ei: { count: 0, comp: 'avg' },
-    eo: { count: 0, comp: 'avg' },
-    eq: { count: 0, comp: 'avg' }
-  });
-  const [tdi, setTdi] = useState<number>(35);
-  const [showFpaTable, setShowFpaTable] = useState(false);
 
   const fpaWeights = {
     ilf: { low: 7, avg: 10, high: 15 },
@@ -107,46 +125,20 @@ export function ProductSizeCalculator() {
   const vaf = (tdi * 0.01) + 0.65;
   const afp = ufp * vaf;
 
-  // CC
-  const [ccMode, setCcMode] = useState<"edges" | "decision">("edges");
-  const [e, setE] = useState<number>(10);
-  const [n, setN] = useState<number>(8);
-  const [P, setP] = useState<number>(1);
-  const [d, setD] = useState<number>(3);
-  const [showCcTable, setShowCcTable] = useState(false);
-
-  const cc = ccMode === "edges" ? (e - n + 2 * P) : (d + P);
-  const ccd = loc > 0 ? Math.max(0, cc / loc) : 0;
-
   // Persistence
   useEffect(() => {
     const saved = localStorage.getItem("productSizeState");
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed.loc !== undefined) setLoc(parsed.loc);
-        if (parsed.cloc !== undefined) setCloc(parsed.cloc);
-        if (parsed.locL1 !== undefined) setLocL1(parsed.locL1);
-        if (parsed.locL2 !== undefined) setLocL2(parsed.locL2);
-        if (parsed.n1 !== undefined) setN1(parsed.n1);
-        if (parsed.n2 !== undefined) setN2(parsed.n2);
-        if (parsed.N1 !== undefined) setCapN1(parsed.N1);
-        if (parsed.N2 !== undefined) setCapN2(parsed.N2);
-        if (parsed.fpa !== undefined) setFpa(parsed.fpa);
-        if (parsed.tdi !== undefined) setTdi(parsed.tdi);
-        if (parsed.e !== undefined) setE(parsed.e);
-        if (parsed.n !== undefined) setN(parsed.n);
-        if (parsed.P !== undefined) setP(parsed.P);
-        if (parsed.d !== undefined) setD(parsed.d);
-        if (parsed.ccMode !== undefined) setCcMode(parsed.ccMode);
-      } catch (e) {}
+        setTimeout(() => setState(p => ({ ...p, ...parsed })), 0);
+      } catch {}
     }
   }, []);
 
   useEffect(() => {
-    const stateToSave = { loc, cloc, locL1, locL2, n1, n2, N1, N2, fpa, tdi, e, n, P, d, ccMode };
-    localStorage.setItem("productSizeState", JSON.stringify(stateToSave));
-  }, [loc, cloc, locL1, locL2, n1, n2, N1, N2, fpa, tdi, e, n, P, d, ccMode]);
+    localStorage.setItem("productSizeState", JSON.stringify(state));
+  }, [state]);
 
   const exportData = (format: 'json' | 'md') => {
     const data = {
@@ -291,14 +283,14 @@ export function ProductSizeCalculator() {
               <div className="grid gap-6">
                 {(Object.keys(fpa) as Array<keyof typeof fpa>).map(k => (
                   <div key={k} className="flex flex-col sm:flex-row gap-4 items-center sm:items-end">
-                    <Input label={k.toUpperCase()} value={fpa[k].count} onChange={(val: number) => setFpa(p => ({...p, [k]: { ...p[k], count: val }}))} />
+                    <Input label={k.toUpperCase()} value={fpa[k].count} onChange={(val: number) => setFpa((p: any) => ({...p, [k]: { ...p[k], count: val }}))} />
                     <div className="flex flex-col space-y-2 font-mono">
                       <label className="text-xs font-bold uppercase tracking-wider flex justify-between">
                         Weight
                       </label>
                       <select 
                         value={fpa[k].comp} 
-                        onChange={(e) => setFpa(p => ({...p, [k]: { ...p[k], comp: e.target.value }}))}
+                        onChange={(evt) => setFpa((p: any) => ({...p, [k]: { ...p[k], comp: evt.target.value }}))}
                         className="border border-black p-2 bg-white text-lg h-[46px] outline-none"
                       >
                         <option value="low">Low</option>
