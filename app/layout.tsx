@@ -15,6 +15,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Katydids",
   description: "Frontend-only software metrics calculator",
+  icons: {
+    icon: "/assets/katydids-logo.png",
+    shortcut: "/assets/katydids-logo.png",
+    apple: "/assets/katydids-logo.png",
+  }
 };
 
 export default function RootLayout({

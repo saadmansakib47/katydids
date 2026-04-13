@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Ruler, Link as LinkIcon, Briefcase, DollarSign, Award, Menu, X } from "lucide-react";
 import { useState } from "react";
@@ -32,8 +33,9 @@ export function Sidebar() {
         className={`fixed inset-y-0 left-0 z-40 w-72 bg-white border-r border-black flex flex-col transform transition-transform duration-300 md:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="p-6 border-b border-black">
-          <Link href="/" className="text-2xl font-black tracking-tight" onClick={() => setIsOpen(false)}>
-            Katydids.
+          <Link href="/" className="flex items-center gap-3" onClick={() => setIsOpen(false)}>
+            <Image src="/assets/katydids-logo.png" alt="Katydids Logo" width={28} height={28} className="object-contain" priority />
+            <span className="text-2xl font-black tracking-tight">Katydids.</span>
           </Link>
         </div>
         
@@ -48,8 +50,8 @@ export function Sidebar() {
                   onClick={() => setIsOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 transition-colors border ${
                     isActive 
-                      ? "bg-black text-white border-black" 
-                      : "bg-white text-black border-transparent hover:border-black hover:bg-gray-100"
+                      ? "bg-black text-white rounded-[6px] border-black" 
+                      : "bg-white text-black rounded-[6px] border-transparent hover:border-black hover:bg-gray-100"
                   }`}
                 >
                   <item.icon size={20} />

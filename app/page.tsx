@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { useTypewriter } from "@/hooks/useTypewriter";
 
@@ -11,14 +12,15 @@ export default function LandingPage() {
   return (
     <main className="flex-1 flex flex-col items-center justify-center min-h-screen bg-white text-black p-4">
       <div className="max-w-3xl w-full text-center space-y-8">
-        <motion.h1 
-          className="text-6xl sm:text-8xl font-black tracking-tight"
+        <motion.div 
+          className="flex flex-col items-center gap-6"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          Katydids
-        </motion.h1>
+          <Image src="/assets/katydids-logo.png" alt="Katydids Logo" width={112} height={112} priority className="object-contain drop-shadow-md" />
+          <h1 className="text-6xl sm:text-8xl font-black tracking-tight">Katydids</h1>
+        </motion.div>
         
         <div className="h-12 flex items-center justify-center">
           <motion.h2 
