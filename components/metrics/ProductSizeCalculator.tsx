@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, AlertTriangle, Info, ChevronDown, ChevronUp, HelpCircle } from "lucide-react";
 import { Tooltip } from "@/components/ui/Tooltip";
@@ -118,6 +118,62 @@ export function ProductSizeCalculator() {
   const cc = ccMode === "edges" ? (e - n + 2 * P) : (d + P);
   const ccd = loc > 0 ? Math.max(0, cc / loc) : 0;
 
+  // Persistence
+  useEffect(() => {
+    const saved = localStorage.getItem("productSizeState");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.loc !== undefined) setLoc(parsed.loc);
+        if (parsed.cloc !== undefined) setCloc(parsed.cloc);
+        if (parsed.locL1 !== undefined) setLocL1(parsed.locL1);
+        if (parsed.locL2 !== undefined) setLocL2(parsed.locL2);
+        if (parsed.n1 !== undefined) setN1(parsed.n1);
+        if (parsed.n2 !== undefined) setN2(parsed.n2);
+        if (parsed.N1 !== undefined) setCapN1(parsed.N1);
+        if (parsed.N2 !== undefined) setCapN2(parsed.N2);
+        if (parsed.fpa !== undefined) setFpa(parsed.fpa);
+        if (parsed.tdi !== undefined) setTdi(parsed.tdi);
+        if (parsed.e !== undefined) setE(parsed.e);
+        if (parsed.n !== undefined) setN(parsed.n);
+        if (parsed.P !== undefined) setP(parsed.P);
+        if (parsed.d !== undefined) setD(parsed.d);
+        if (parsed.ccMode !== undefined) setCcMode(parsed.ccMode);
+      } catch (e) {}
+    }
+  }, []);
+
+  useEffect(() => {
+    const stateToSave = { loc, cloc, locL1, locL2, n1, n2, N1, N2, fpa, tdi, e, n, P, d, ccMode };
+    localStorage.setItem("productSizeState", JSON.stringify(stateToSave));
+  }, [loc, cloc, locL1, locL2, n1, n2, N1, N2, fpa, tdi, e, n, P, d, ccMode]);
+
+  const exportData = (format: 'json' | 'md') => {
+    const data = {
+      basic: { loc, cloc, locL1, locL2, commentDensity, ncloc, lgf },
+      halstead: { n1, n2, N1, N2, Vocabulary: halstead_n, Length: halstead_N, Volume: halstead_V, Difficulty: halstead_D, Effort: halstead_E },
+      fpa: { inputs: fpa, tdi, ufp, vaf, afp },
+      complexity: { mode: ccMode, e, n, P, d, CyclomaticComplexity: cc, Density: ccd }
+    };
+
+    let content = "";
+    if (format === 'json') {
+      content = JSON.stringify(data, null, 2);
+    } else {
+      content = `# Product Size Metrics Export\n\n## Basic\n- Comment Density: ${(commentDensity*100).toFixed(1)}%\n- NCLOC: ${ncloc}\n- LGF: ${lgf.toFixed(2)}\n\n## Halstead\n- Vocabulary: ${halstead_n}\n- Volume: ${halstead_V.toFixed(2)}\n- Difficulty: ${halstead_D.toFixed(2)}\n- Effort: ${halstead_E.toFixed(2)}\n\n## FPA\n- UFP: ${ufp}\n- VAF: ${vaf.toFixed(2)}\n- AFP: ${afp.toFixed(2)}\n\n## Complexity\n- Cyclomatic Complexity: ${cc}\n- Density: ${ccd.toFixed(4)}\n`;
+    }
+
+    const blob = new Blob([content], { type: format === 'json' ? "application/json" : "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `product-size-metrics.${format}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const tabs = [
     { id: "basic", label: "Basic Metrics" },
     { id: "halstead", label: "Halstead Metrics" },
@@ -127,6 +183,14 @@ export function ProductSizeCalculator() {
 
   return (
     <div className="bg-white border-2 border-black">
+      <div className="flex flex-col sm:flex-row justify-between items-center p-4 bg-gray-50 border-b border-black gap-4 text-sm font-mono leading-none">
+        <div className="text-gray-500 font-bold tracking-widest text-xs uppercase">Auto-saved Locally</div>
+        <div className="flex gap-2">
+          <button onClick={() => exportData('json')} className="bg-black text-white px-4 py-2 uppercase tracking-wider font-bold hover:bg-gray-800 transition-colors">Export JSON</button>
+          <button onClick={() => exportData('md')} className="bg-white text-black border border-black px-4 py-2 uppercase tracking-wider font-bold hover:bg-gray-100 transition-colors">Export MD</button>
+        </div>
+      </div>
+
       <div className="flex flex-col sm:flex-row overflow-x-auto border-b-2 border-black bg-gray-50">
         {tabs.map(tab => (
           <button

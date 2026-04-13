@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, AlertTriangle, Info, ChevronDown, ChevronUp, Plus, Trash2, HelpCircle } from "lucide-react";
 import { Tooltip } from "@/components/ui/Tooltip";
@@ -82,6 +82,55 @@ export function CouplingCalculator() {
 
   const clientReuse = directClient + indirectClient;
 
+  // Persistence
+  useEffect(() => {
+    const saved = localStorage.getItem("couplingState");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.direct !== undefined) setDirect(parsed.direct);
+        if (parsed.indirect !== undefined) setIndirect(parsed.indirect);
+        if (parsed.maxPossible !== undefined) setMaxPossible(parsed.maxPossible);
+        if (parsed.variables !== undefined) setVariables(parsed.variables);
+        if (parsed.dit !== undefined) setDit(parsed.dit);
+        if (parsed.directClient !== undefined) setDirectClient(parsed.directClient);
+        if (parsed.indirectClient !== undefined) setIndirectClient(parsed.indirectClient);
+        if (parsed.serverClients !== undefined) setServerClients(parsed.serverClients);
+      } catch (e) {}
+    }
+  }, []);
+
+  useEffect(() => {
+    const stateToSave = { direct, indirect, maxPossible, variables, dit, directClient, indirectClient, serverClients };
+    localStorage.setItem("couplingState", JSON.stringify(stateToSave));
+  }, [direct, indirect, maxPossible, variables, dit, directClient, indirectClient, serverClients]);
+
+  const exportData = (format: 'json' | 'md') => {
+    const data = {
+      classCohesion: { direct, indirect, maxPossible, tcc, lcc },
+      dataCohesion: { variables, totalRci },
+      dit: { dit },
+      ooReuse: { directClient, indirectClient, serverClients, clientReuse }
+    };
+
+    let content = "";
+    if (format === 'json') {
+      content = JSON.stringify(data, null, 2);
+    } else {
+      content = `# Coupling Metrics Export\n\n## Class Cohesion\n- Tight Class Cohesion (TCC): ${tcc.toFixed(2)}\n- Loose Class Cohesion (LCC): ${lcc.toFixed(2)}\n\n## Data Cohesion\n- Total RCI: ${totalRci}\n\n## Depth of Inheritance\n- DIT: ${dit}\n\n## OO Reuse\n- Client Reuse: ${clientReuse}\n- Server Reuse: ${serverClients}\n`;
+    }
+
+    const blob = new Blob([content], { type: format === 'json' ? "application/json" : "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `coupling-metrics.${format}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const tabs = [
     { id: "class", label: "Class Cohesion (TCC/LCC)" },
     { id: "rci", label: "Data Cohesion (RCI)" },
@@ -91,6 +140,14 @@ export function CouplingCalculator() {
 
   return (
     <div className="bg-white border-2 border-black">
+      <div className="flex flex-col sm:flex-row justify-between items-center p-4 bg-gray-50 border-b border-black gap-4 text-sm font-mono leading-none">
+        <div className="text-gray-500 font-bold tracking-widest text-xs uppercase">Auto-saved Locally</div>
+        <div className="flex gap-2">
+          <button onClick={() => exportData('json')} className="bg-black text-white px-4 py-2 uppercase tracking-wider font-bold hover:bg-gray-800 transition-colors">Export JSON</button>
+          <button onClick={() => exportData('md')} className="bg-white text-black border border-black px-4 py-2 uppercase tracking-wider font-bold hover:bg-gray-100 transition-colors">Export MD</button>
+        </div>
+      </div>
+
       <div className="flex flex-col sm:flex-row overflow-x-auto border-b-2 border-black bg-gray-50">
         {tabs.map(tab => (
           <button
