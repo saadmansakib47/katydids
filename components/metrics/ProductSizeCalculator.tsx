@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, AlertTriangle, Info, ChevronDown, ChevronUp } from "lucide-react";
 
-const Input = ({ label, value, onChange, min = "0", max, step = "1" }: any) => (
+const Input = ({ label, value, onChange, min = "0", max, step = "1" }: unknown) => (
   <div className="flex flex-col space-y-2 font-mono">
     <label className="text-xs font-bold uppercase tracking-wider">{label}</label>
     <input
