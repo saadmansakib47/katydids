@@ -2,11 +2,19 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, AlertTriangle, Info, ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Info, ChevronDown, ChevronUp, Plus, Trash2, HelpCircle } from "lucide-react";
+import { Tooltip } from "@/components/ui/Tooltip";
 
-const Input = ({ label, value, onChange, min = "0", max, step = "1", className = "" }: any) => (
+const Input = ({ label, value, onChange, min = "0", max, step = "1", className = "", tooltip }: any) => (
   <div className={`flex flex-col space-y-2 font-mono ${className}`}>
-    <label className="text-xs font-bold uppercase tracking-wider">{label}</label>
+    <div className="flex justify-between items-center">
+      <label className="text-xs font-bold uppercase tracking-wider">{label}</label>
+      {tooltip && (
+        <Tooltip text={tooltip}>
+          <HelpCircle size={14} className="text-gray-400 hover:text-black cursor-help shrink-0" />
+        </Tooltip>
+      )}
+    </div>
     <input
       type="number"
       min={min}
@@ -22,12 +30,19 @@ const Input = ({ label, value, onChange, min = "0", max, step = "1", className =
   </div>
 );
 
-const ResultCard = ({ title, value, comment, good }: { title: string, value: string | number, comment: string, good?: boolean }) => (
+const ResultCard = ({ title, value, comment, good, tooltip }: { title: string, value: string | number, comment: string, good?: boolean, tooltip?: string }) => (
   <motion.div 
     initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
     className={`p-4 border ${good === undefined ? 'border-gray-400' : good ? 'border-black bg-gray-50' : 'border-black bg-gray-100'} border-l-4 ${good === undefined ? '!border-l-gray-600' : good ? '!border-l-black' : '!border-l-black'}`}
   >
-    <div className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">{title}</div>
+    <div className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 flex items-center justify-between">
+      {title}
+      {tooltip && (
+        <Tooltip text={tooltip}>
+          <HelpCircle size={14} className="text-gray-400 hover:text-black cursor-help shrink-0" />
+        </Tooltip>
+      )}
+    </div>
     <div className="text-3xl font-black mb-3">{value}</div>
     <div className="text-sm flex items-start gap-2 font-mono">
       {good === undefined ? <Info size={16} className="mt-0.5 shrink-0" /> : good ? <CheckCircle2 size={16} className="mt-0.5 shrink-0" /> : <AlertTriangle size={16} className="mt-0.5 shrink-0" />}
@@ -94,9 +109,9 @@ export function CouplingCalculator() {
         {activeTab === "class" && (
           <div className="space-y-8 animate-in fade-in duration-300">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 border border-black bg-gray-50">
-              <Input label="Direct Pairs (NDC)" value={direct} onChange={setDirect} />
-              <Input label="Indirect Pairs (NIC)" value={indirect} onChange={setIndirect} />
-              <Input label="Max Possible Pairs (NP)" value={maxPossible} onChange={setMaxPossible} />
+              <Input label="Direct Pairs (NDC)" value={direct} onChange={setDirect} tooltip="Number of connection pairs formed directly by method invocations." />
+              <Input label="Indirect Pairs (NIC)" value={indirect} onChange={setIndirect} tooltip="Number of connection pairs formed indirectly across multiple edges." />
+              <Input label="Max Possible Pairs (NP)" value={maxPossible} onChange={setMaxPossible} tooltip="Total theoretical pairs that could connect methods." />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -105,12 +120,14 @@ export function CouplingCalculator() {
                 value={tcc.toFixed(2)} 
                 comment={tcc >= 0.5 ? "Good tight class cohesion 🎯" : "Low cohesion, consider refactoring ⚠️"} 
                 good={tcc >= 0.5}
+                tooltip="TCC targets strictly direct interaction. High TCC means methods share instance variables inherently."
               />
               <ResultCard 
                 title="Loose Class Cohesion (LCC)" 
                 value={lcc.toFixed(2)} 
                 comment={lcc >= 0.5 ? "Good loose architecture ✅" : "Class is poorly connected internally ⚠️"}
                 good={lcc >= 0.5} 
+                tooltip="LCC includes indirect invocations and variable usage, indicating broad cohesive nature."
               />
             </div>
             <div className="text-sm font-mono bg-gray-100 p-4 border border-black border-dashed">
@@ -123,7 +140,12 @@ export function CouplingCalculator() {
           <div className="space-y-8 animate-in fade-in duration-300">
              <div className="p-6 border border-black bg-gray-50">
               <div className="flex items-center justify-between mb-4 border-b border-black pb-4">
-                <h3 className="font-bold uppercase tracking-widest text-sm">Variables Usage</h3>
+                <h3 className="font-bold uppercase tracking-widest text-sm flex gap-2 items-center">
+                  Variables Usage
+                  <Tooltip text="RCI aggregates pairs 'p' based on variables used across multiple methods. Higher reuse indicates better data cohesion.">
+                    <HelpCircle size={14} className="text-gray-400 cursor-help" />
+                  </Tooltip>
+                </h3>
                 <button 
                   onClick={addVariable}
                   className="flex items-center gap-1 bg-black text-white px-3 py-1 text-xs uppercase tracking-widest hover:bg-gray-800 transition-colors"
@@ -160,6 +182,7 @@ export function CouplingCalculator() {
                 title="Total RCI" 
                 value={totalRci} 
                 comment="Sum of 'p' for all variables evaluated." 
+                tooltip="Data Cohesion via RCI reflects the degree variables participate across member methods. Correlated heavily with maintainable code!"
               />
             </div>
             <div className="text-sm font-mono bg-gray-100 p-4 border border-black border-dashed">
@@ -171,7 +194,7 @@ export function CouplingCalculator() {
         {activeTab === "dit" && (
           <div className="space-y-8 animate-in fade-in duration-300">
              <div className="max-w-md p-6 border border-black bg-gray-50">
-               <Input label="Depth Level (DIT)" value={dit} onChange={setDit} />
+               <Input label="Depth Level (DIT)" value={dit} onChange={setDit} tooltip="The maximum inheritance path from the class to the root class." />
              </div>
 
              <div className="grid grid-cols-1 gap-6">
@@ -184,6 +207,7 @@ export function CouplingCalculator() {
                    dit <= 5 ? "Acceptable inheritance depth, manageable complexity." :
                    "High DIT! Increased complexity, difficult to predict behavior and high error proneness."
                  }
+                 tooltip="DIT measures how many parent layers exist above a class. > 5 layers tends to obfuscate control flow."
                />
              </div>
 
@@ -196,7 +220,7 @@ export function CouplingCalculator() {
                 DIT Assessment Table
               </button>
               {showDitTable && (
-                <div className="mt-4 border border-black p-4 bg-gray-50 font-mono text-sm max-w-lg">
+                <div className="mt-4 border border-black p-4 bg-gray-50 font-mono text-sm max-w-lg animate-in fade-in slide-in-from-top-2">
                   <div className="grid grid-cols-3 font-bold mb-2 pb-2 border-b border-black">
                     <div>Depth</div><div>Complexity</div><div>Recommendation</div>
                   </div>
@@ -219,10 +243,15 @@ export function CouplingCalculator() {
                
                {/* Client Perspective */}
                <div className="space-y-4">
-                 <h3 className="font-bold uppercase tracking-widest border-b border-black pb-2">Client Perspective</h3>
+                 <h3 className="font-bold uppercase tracking-widest border-b border-black pb-2 flex justify-between">
+                    Client Perspective
+                    <Tooltip text="Measures how effectively this client module reuses server (provider) classes.">
+                      <HelpCircle size={16} className="text-gray-400 cursor-help" />
+                    </Tooltip>
+                 </h3>
                  <div className="p-6 border border-black bg-gray-50 space-y-4">
-                   <Input label="Direct Server Classes" value={directClient} onChange={setDirectClient} />
-                   <Input label="Indirect Server Classes" value={indirectClient} onChange={setIndirectClient} />
+                   <Input label="Direct Server Classes" value={directClient} onChange={setDirectClient} tooltip="Classes communicating adjacently to this client." />
+                   <Input label="Indirect Server Classes" value={indirectClient} onChange={setIndirectClient} tooltip="Classes acting down the sub-chain of server paths." />
                  </div>
                  <ResultCard 
                    title="# Reuse (Client)" 
@@ -234,9 +263,14 @@ export function CouplingCalculator() {
 
                {/* Server Perspective */}
                <div className="space-y-4">
-                 <h3 className="font-bold uppercase tracking-widest border-b border-black pb-2">Server Perspective</h3>
+                 <h3 className="font-bold uppercase tracking-widest border-b border-black pb-2 flex justify-between">
+                   Server Perspective
+                   <Tooltip text="Assesses the effectiveness of a library component by tracking dependency distribution.">
+                     <HelpCircle size={16} className="text-gray-400 cursor-help" />
+                   </Tooltip>
+                 </h3>
                  <div className="p-6 border border-black bg-gray-50">
-                    <Input label="Clients using this library class" value={serverClients} onChange={setServerClients} />
+                    <Input label="Clients using this library class" value={serverClients} onChange={setServerClients} tooltip="Amount of separate components relying on this library implementation." />
                  </div>
                  <ResultCard 
                    title="# Reuse (Library Class)" 

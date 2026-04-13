@@ -2,11 +2,19 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, AlertTriangle, Info, ChevronDown, ChevronUp } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Info, ChevronDown, ChevronUp, HelpCircle } from "lucide-react";
+import { Tooltip } from "@/components/ui/Tooltip";
 
-const Input = ({ label, value, onChange, min = "0", max, step = "1" }: unknown) => (
+const Input = ({ label, value, onChange, min = "0", max, step = "1", tooltip }: any) => (
   <div className="flex flex-col space-y-2 font-mono">
-    <label className="text-xs font-bold uppercase tracking-wider">{label}</label>
+    <div className="flex justify-between items-center">
+      <label className="text-xs font-bold uppercase tracking-wider">{label}</label>
+      {tooltip && (
+        <Tooltip text={tooltip}>
+          <HelpCircle size={14} className="text-gray-400 hover:text-black cursor-help shrink-0" />
+        </Tooltip>
+      )}
+    </div>
     <input
       type="number"
       min={min}
@@ -22,12 +30,19 @@ const Input = ({ label, value, onChange, min = "0", max, step = "1" }: unknown) 
   </div>
 );
 
-const ResultCard = ({ title, value, comment, good }: { title: string, value: string | number, comment: string, good?: boolean }) => (
+const ResultCard = ({ title, value, comment, good, tooltip }: { title: string, value: string | number, comment: string, good?: boolean, tooltip?: string }) => (
   <motion.div 
     initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
     className={`p-4 border ${good === undefined ? 'border-gray-400' : good ? 'border-black bg-gray-50' : 'border-black bg-gray-100'} border-l-4 ${good === undefined ? '!border-l-gray-600' : good ? '!border-l-black' : '!border-l-black'}`}
   >
-    <div className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">{title}</div>
+    <div className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 flex items-center justify-between">
+      {title}
+      {tooltip && (
+        <Tooltip text={tooltip}>
+          <HelpCircle size={14} className="text-gray-400 hover:text-black cursor-help shrink-0" />
+        </Tooltip>
+      )}
+    </div>
     <div className="text-3xl font-black mb-3">{value}</div>
     <div className="text-sm flex items-start gap-2 font-mono">
       {good === undefined ? <Info size={16} className="mt-0.5 shrink-0" /> : good ? <CheckCircle2 size={16} className="mt-0.5 shrink-0" /> : <AlertTriangle size={16} className="mt-0.5 shrink-0" />}
@@ -70,7 +85,7 @@ export function ProductSizeCalculator() {
     eo: { count: 0, comp: 'avg' },
     eq: { count: 0, comp: 'avg' }
   });
-  const [tdi, setTdi] = useState<number>(35); // 0-70 max usually, simplified representing the sum
+  const [tdi, setTdi] = useState<number>(35);
   const [showFpaTable, setShowFpaTable] = useState(false);
 
   const fpaWeights = {
@@ -130,10 +145,10 @@ export function ProductSizeCalculator() {
         {activeTab === "basic" && (
           <div className="space-y-8 animate-in fade-in duration-300">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6 border border-black bg-gray-50">
-              <Input label="Total LOC" value={loc} onChange={setLoc} />
-              <Input label="Comment LOC (CLOC)" value={cloc} onChange={setCloc} />
-              <Input label="LOC (Lang 1)" value={locL1} onChange={setLocL1} />
-              <Input label="LOC (Lang 2)" value={locL2} onChange={setLocL2} />
+              <Input label="Total LOC" value={loc} onChange={setLoc} tooltip="Total lines of code indicates raw size but can include dead code and comments." />
+              <Input label="Comment LOC (CLOC)" value={cloc} onChange={setCloc} tooltip="Lines containing only comments. Helps measure code documentation." />
+              <Input label="LOC (Lang 1)" value={locL1} onChange={setLocL1} tooltip="LOC in primary language." />
+              <Input label="LOC (Lang 2)" value={locL2} onChange={setLocL2} tooltip="LOC in secondary language." />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -142,16 +157,19 @@ export function ProductSizeCalculator() {
                 value={(commentDensity * 100).toFixed(1) + "%"} 
                 comment={commentDensity > 0.2 ? "Good maintainability 🎯" : "More comments needed ⚠️"} 
                 good={commentDensity > 0.2}
+                tooltip="High comment density corresponds to better maintainability and testability."
               />
               <ResultCard 
                 title="NCLOC" 
                 value={ncloc} 
                 comment="Non-comment source code defining active logic." 
+                tooltip="NCLOC tracks only executable logic, providing a more accurate reflection of complexity than raw LOC."
               />
               <ResultCard 
                 title="Language Growth Factor" 
                 value={lgf.toFixed(2)} 
                 comment="LGF ratio between Lang 1 and Lang 2." 
+                tooltip="Identifies the expansion factor when porting logic across programming languages."
               />
             </div>
 
@@ -164,7 +182,7 @@ export function ProductSizeCalculator() {
                 QSM SLOC/FP Data Table
               </button>
               {showQsm && (
-                <div className="mt-4 border border-black p-4 bg-gray-50 font-mono text-sm max-w-md">
+                <div className="mt-4 border border-black p-4 bg-gray-50 font-mono text-sm max-w-md animate-in fade-in slide-in-from-top-2">
                   <div className="grid grid-cols-2 font-bold mb-2 pb-2 border-b border-black">
                     <div>Language</div><div>Avg SLOC / UFP</div>
                   </div>
@@ -181,18 +199,18 @@ export function ProductSizeCalculator() {
         {activeTab === "halstead" && (
           <div className="space-y-8 animate-in fade-in duration-300">
              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6 border border-black bg-gray-50">
-              <Input label="Unique Operators (n1)" value={n1} onChange={setN1} />
-              <Input label="Unique Operands (n2)" value={n2} onChange={setN2} />
-              <Input label="Total Operators (N1)" value={N1} onChange={setCapN1} />
-              <Input label="Total Operands (N2)" value={N2} onChange={setCapN2} />
+              <Input label="Unique Operators (n1)" value={n1} onChange={setN1} tooltip="Number of distinct operators (+, -, if, while) in the code." />
+              <Input label="Unique Operands (n2)" value={n2} onChange={setN2} tooltip="Number of distinct operands (variables, constants) in the code." />
+              <Input label="Total Operators (N1)" value={N1} onChange={setCapN1} tooltip="Total occurrences of operators." />
+              <Input label="Total Operands (N2)" value={N2} onChange={setCapN2} tooltip="Total occurrences of operands." />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <ResultCard title="Vocabulary (n)" value={halstead_n} comment="Total unique symbols used." />
-              <ResultCard title="Program Length (N)" value={halstead_N} comment="Total symbols used." />
-              <ResultCard title="Volume (V)" value={halstead_V.toFixed(2)} comment="Size of the implementation." />
-              <ResultCard title="Difficulty (D)" value={halstead_D.toFixed(2)} comment={halstead_D > 15 ? "High complexity/difficulty ⚠️" : "Manageable difficulty ✅"} good={halstead_D <= 15} />
-              <ResultCard title="Effort (E)" value={halstead_E.toFixed(2)} comment="Proportional to mental effort to recreate." />
+              <ResultCard title="Vocabulary (n)" value={halstead_n} comment="Total unique symbols used." tooltip="Measures the number of unique elements the developer needs to understand." />
+              <ResultCard title="Program Length (N)" value={halstead_N} comment="Total symbols used." tooltip="Measures total size of operations." />
+              <ResultCard title="Volume (V)" value={halstead_V.toFixed(2)} comment="Size of the implementation." tooltip="Represents the size of the implementation (information content)." />
+              <ResultCard title="Difficulty (D)" value={halstead_D.toFixed(2)} comment={halstead_D > 15 ? "High complexity/difficulty ⚠️" : "Manageable difficulty ✅"} good={halstead_D <= 15} tooltip="Higher difficulty makes code harder to write and understand." />
+              <ResultCard title="Effort (E)" value={halstead_E.toFixed(2)} comment="Proportional to mental effort to recreate." tooltip="Measures the cognitive load and mental effort required to develop the program." />
             </div>
           </div>
         )}
@@ -200,13 +218,20 @@ export function ProductSizeCalculator() {
         {activeTab === "fpa" && (
           <div className="space-y-8 animate-in fade-in duration-300">
             <div className="border border-black bg-gray-50 p-6">
-              <h3 className="font-bold text-lg mb-4 uppercase tracking-widest border-b border-black pb-2">Function Count & Weights</h3>
+              <h3 className="font-bold text-lg mb-4 uppercase tracking-widest border-b border-black pb-2 flex justify-between items-center">
+                Function Count & Weights
+                <Tooltip text="FPA measures functionality requested by and provided to the user, irrespective of the underlying technology.">
+                  <HelpCircle size={18} className="text-gray-400 cursor-help" />
+                </Tooltip>
+              </h3>
               <div className="grid gap-6">
                 {(Object.keys(fpa) as Array<keyof typeof fpa>).map(k => (
                   <div key={k} className="flex flex-col sm:flex-row gap-4 items-center sm:items-end">
                     <Input label={k.toUpperCase()} value={fpa[k].count} onChange={(val: number) => setFpa(p => ({...p, [k]: { ...p[k], count: val }}))} />
                     <div className="flex flex-col space-y-2 font-mono">
-                      <label className="text-xs font-bold uppercase tracking-wider">Weight</label>
+                      <label className="text-xs font-bold uppercase tracking-wider flex justify-between">
+                        Weight
+                      </label>
                       <select 
                         value={fpa[k].comp} 
                         onChange={(e) => setFpa(p => ({...p, [k]: { ...p[k], comp: e.target.value }}))}
@@ -223,14 +248,14 @@ export function ProductSizeCalculator() {
             </div>
 
             <div className="p-6 border border-black bg-gray-50 flex items-center gap-6">
-              <Input label="Total Degree of Influence (TDI 0-70)" value={tdi} onChange={setTdi} min="0" max="70" />
-              <div className="text-sm font-mono text-gray-600 max-w-sm">Sum of 14 system characteristics (0-5 each). Calculate TDI.</div>
+              <Input label="Total Degree of Influence (TDI 0-70)" value={tdi} onChange={setTdi} min="0" max="70" tooltip="Sum of 14 general system characteristics, each rated 0 to 5." />
+              <div className="text-sm font-mono text-gray-600 max-w-sm border-l border-black pl-4">Calculates Value Adjustment Factor (VAF) from system characteristics (TDI * 0.01 + 0.65).</div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <ResultCard title="Unadjusted Function Point (UFP)" value={ufp} comment="Base function points." />
-              <ResultCard title="Value Adjustment Factor (VAF)" value={vaf.toFixed(2)} comment="Derived from TDI." />
-              <ResultCard title="Adjusted Function Point (AFP)" value={afp.toFixed(2)} comment="Final FPA evaluation 🚀" good={true} />
+              <ResultCard title="Unadjusted FP (UFP)" value={ufp} comment="Base function points." tooltip="UFP represents the functional size independent of non-functional requirements." />
+              <ResultCard title="Value Adjustment (VAF)" value={vaf.toFixed(2)} comment="Derived from TDI." tooltip="Factor indicating general system characteristic complexity." />
+              <ResultCard title="Adjusted FP (AFP)" value={afp.toFixed(2)} comment="Final FPA evaluation 🚀" good={true} tooltip="Final functional size metric incorporating technical influence." />
             </div>
 
             <div className="pt-4">
@@ -242,7 +267,7 @@ export function ProductSizeCalculator() {
                 Weighing Factor Table
               </button>
               {showFpaTable && (
-                <div className="mt-4 border border-black p-4 bg-gray-50 font-mono text-sm max-w-lg">
+                <div className="mt-4 border border-black p-4 bg-gray-50 font-mono text-sm max-w-lg animate-in fade-in slide-in-from-top-2">
                   <div className="grid grid-cols-4 font-bold mb-2 pb-2 border-b border-black">
                     <div>Type</div><div>Low</div><div>Avg</div><div>High</div>
                   </div>
@@ -265,17 +290,17 @@ export function ProductSizeCalculator() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6 border border-black bg-gray-50">
-              <Input label="LOC (for density)" value={loc} onChange={setLoc} />
+              <Input label="LOC (for density)" value={loc} onChange={setLoc} tooltip="Used strictly for calculating Cyclomatic Complexity Density (CCD)." />
               {ccMode === "edges" ? (
                 <>
-                  <Input label="Edges (e)" value={e} onChange={setE} />
-                  <Input label="Vertices (n)" value={n} onChange={setN} />
-                  <Input label="Connected Components (P)" value={P} onChange={setP} />
+                  <Input label="Edges (e)" value={e} onChange={setE} tooltip="Number of branches/edges in the control flow graph." />
+                  <Input label="Vertices (n)" value={n} onChange={setN} tooltip="Number of nodes/statements in the control flow graph." />
+                  <Input label="Connected Components (P)" value={P} onChange={setP} tooltip="Number of connected programs/functions." />
                 </>
               ) : (
                 <>
-                  <Input label="Decision Nodes (d)" value={d} onChange={setD} />
-                  <Input label="Connected Components (P)" value={P} onChange={setP} />
+                  <Input label="Decision Nodes (d)" value={d} onChange={setD} tooltip="Number of predicates (if, while, case)." />
+                  <Input label="Connected Components (P)" value={P} onChange={setP} tooltip="Number of connected programs." />
                 </>
               )}
             </div>
@@ -286,12 +311,14 @@ export function ProductSizeCalculator() {
                 value={cc} 
                 comment={cc <= 10 ? "Simple, high testability 🚀" : cc <= 20 ? "Moderate risk ⚠️" : "Complex, high cost & effort ❌"} 
                 good={cc <= 10 ? true : cc <= 20 ? undefined : false}
+                tooltip="Identifies the number of independent paths through the code. Higher CC means harder to test and maintain."
               />
               <ResultCard 
                 title="Complexity Density (CCD)" 
                 value={ccd.toFixed(4)} 
                 comment={ccd < 0.14 ? "Lower CCD, higher maintenance productivity ✅" : "High CCD, difficult maintenance ⚠️"} 
                 good={ccd < 0.14}
+                tooltip="CC / LOC. Helps normalize complexity across heavily disjoint program lengths."
               />
             </div>
 
@@ -306,9 +333,9 @@ export function ProductSizeCalculator() {
             </div>
             
             {showCcTable && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 animate-in fade-in slide-in-from-top-2">
                 <div className="border border-black p-4 bg-gray-50 font-mono text-sm flex-1">
-                  <div className="font-black text-xs uppercase tracking-widest mb-4">Classification & Impact</div>
+                  <div className="font-black text-xs uppercase tracking-widest mb-4 flex gap-2"><Info size={16}/> Classification & Impact</div>
                   <div className="grid grid-cols-2 font-bold mb-2 pb-2 border-b border-black">
                     <div>Complexity</div><div>Evaluation</div>
                   </div>
@@ -319,7 +346,7 @@ export function ProductSizeCalculator() {
                 </div>
 
                 <div className="border border-black p-4 bg-gray-50 font-mono text-sm flex-1">
-                  <div className="font-black text-xs uppercase tracking-widest mb-4">CC vs Bad Fix Probability</div>
+                  <div className="font-black text-xs uppercase tracking-widest mb-4 flex gap-2"><Info size={16}/> CC vs Bad Fix Probability</div>
                   <div className="grid grid-cols-2 font-bold mb-2 pb-2 border-b border-black">
                     <div>Complexity</div><div>Probability</div>
                   </div>
