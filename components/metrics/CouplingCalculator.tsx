@@ -246,7 +246,7 @@ export function CouplingCalculator() {
               />
             </div>
             <div className="text-sm font-mono bg-gray-100 p-4 border border-black border-dashed">
-              <span className="font-bold">Sprint 02 Preview:</span> In Sprint 02, we plan to extract RCI inputs from uploaded file.
+              <span className="font-bold">Upcoming : </span> Extract RCI inputs from uploaded file.
             </div>
           </div>
         )}
@@ -276,7 +276,9 @@ export function CouplingCalculator() {
                 onClick={() => setShowDitTable(!showDitTable)}
                 className="flex items-center gap-2 bg-white text-black px-4 py-2 border border-black hover:bg-gray-100 font-bold uppercase tracking-wider text-xs"
               >
-                <ChevronDown size={16} className={`transition-transform duration-300 ${showDitTable ? "rotate-180" : ""}`} />
+                <motion.div animate={{ rotate: showDitTable ? 180 : 0 }} transition={{ duration: 0.3 }}>
+                  <ChevronDown size={16} />
+                </motion.div>
                 DIT Assessment Table
               </button>
               {showDitTable && (
@@ -292,7 +294,7 @@ export function CouplingCalculator() {
             </div>
 
             <div className="text-sm font-mono bg-gray-100 p-4 border border-black border-dashed">
-              <span className="font-bold">Sprint 02 & 03:</span> Automated extraction from uploaded files or UML diagrams via AI.
+              <span className="font-bold">Upcoming:</span> Automated extraction from uploaded files or UML diagrams via AI.
             </div>
           </div>
         )}

@@ -1,22 +1,26 @@
-import { Sidebar } from "@/components/dashboard/Sidebar";
+"use client";
+
+import { useTypewriter } from "@/hooks/useTypewriter";
+import { motion } from "framer-motion";
 import { QualityCalculator } from "@/components/metrics/QualityCalculator";
 
 export default function QualityPage() {
+  const subtitle = useTypewriter("Assessing maintainability and defect density for code health.", 40);
+
   return (
-    <div className="flex min-h-screen bg-white">
-      <Sidebar />
-      <main className="flex-1 md:ml-72 p-6 md:p-12">
-        <div className="max-w-6xl mx-auto space-y-8">
-          <div className="space-y-2">
-            <h1 className="text-4xl font-black tracking-tight uppercase">Quality Metrics</h1>
-            <p className="text-gray-500 font-mono text-sm max-w-2xl">
-              Assessing software reliability and long-term health. Monitor bug density and project the &quot;Maintainability Index&quot; to identify technical debt early.
-            </p>
-          </div>
-          
-          <QualityCalculator />
-        </div>
-      </main>
+    <div className="space-y-6">
+      <h1 className="text-4xl font-black tracking-tight border-b border-black pb-4">
+        Quality metrics
+      </h1>
+      <motion.p 
+        className="text-lg text-gray-600 font-mono mb-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
+        {subtitle}<span className="inline-block w-[2px] h-[1em] bg-black ml-1 align-middle animate-pulse"></span>
+      </motion.p>
+      
+      <QualityCalculator />
     </div>
   );
 }

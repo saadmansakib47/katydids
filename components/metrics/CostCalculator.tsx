@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Info, HelpCircle, DollarSign, TrendingUp, BarChart3 } from "lucide-react";
+import { Info, HelpCircle, DollarSign, TrendingUp, BarChart3, ChevronDown } from "lucide-react";
 import { Tooltip } from "@/components/ui/Tooltip";
 
 const Input = ({ label, value, onChange, min = "0", step = "1", tooltip, prefix }: any) => (
@@ -170,17 +170,22 @@ export function CostCalculator() {
           />
           <div className="flex flex-col space-y-2 font-mono">
             <label className="text-xs font-bold uppercase tracking-wider">Currency</label>
-            <select 
-              value={currency} 
-              onChange={(e) => setState(p => ({ ...p, currency: e.target.value }))}
-              className="border border-black p-2 bg-white text-lg h-[46px] outline-none"
-            >
-              <option value="USD">USD ($)</option>
-              <option value="EUR">EUR (€)</option>
-              <option value="GBP">GBP (£)</option>
-              <option value="INR">INR (₹)</option>
-              <option value="BDT">BDT (৳)</option>
-            </select>
+            <div className="relative">
+              <select 
+                value={currency} 
+                onChange={(e) => setState(p => ({ ...p, currency: e.target.value }))}
+                className="border border-black p-2 bg-white text-lg h-[46px] outline-none appearance-none w-full pr-10"
+              >
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+                <option value="INR">INR (₹)</option>
+                <option value="BDT">BDT (৳)</option>
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <ChevronDown size={18} />
+              </div>
+            </div>
           </div>
         </div>
 

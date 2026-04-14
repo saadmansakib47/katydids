@@ -242,7 +242,9 @@ export function ProductSizeCalculator() {
                 onClick={() => setShowQsm(!showQsm)}
                 className="flex items-center gap-2 bg-white text-black px-4 py-2 border border-black hover:bg-gray-100 font-bold uppercase tracking-wider text-xs"
               >
-                <ChevronDown size={16} className={`transition-transform duration-300 ${showQsm ? "rotate-180" : ""}`} />
+                <motion.div animate={{ rotate: showQsm ? 180 : 0 }} transition={{ duration: 0.3 }}>
+                  <ChevronDown size={16} />
+                </motion.div>
                 QSM SLOC/FP Data Table
               </button>
               {showQsm && (
@@ -327,7 +329,9 @@ export function ProductSizeCalculator() {
                 onClick={() => setShowFpaTable(!showFpaTable)}
                 className="flex items-center gap-2 bg-white text-black px-4 py-2 border border-black hover:bg-gray-100 font-bold uppercase tracking-wider text-xs"
               >
-                <ChevronDown size={16} className={`transition-transform duration-300 ${showFpaTable ? "rotate-180" : ""}`} />
+                <motion.div animate={{ rotate: showFpaTable ? 180 : 0 }} transition={{ duration: 0.3 }}>
+                  <ChevronDown size={16} />
+                </motion.div>
                 Weighing Factor Table
               </button>
               {showFpaTable && (
@@ -391,7 +395,9 @@ export function ProductSizeCalculator() {
                 onClick={() => setShowCcTable(!showCcTable)}
                 className="flex items-center gap-2 bg-white text-black px-4 py-2 border border-black hover:bg-gray-100 font-bold uppercase tracking-wider text-xs"
               >
-                <ChevronDown size={16} className={`transition-transform duration-300 ${showCcTable ? "rotate-180" : ""}`} />
+                <motion.div animate={{ rotate: showCcTable ? 180 : 0 }} transition={{ duration: 0.3 }}>
+                  <ChevronDown size={16} />
+                </motion.div>
                 Complexity Classification & Impact Tables
               </button>
             </div>

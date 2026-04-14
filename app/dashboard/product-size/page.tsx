@@ -10,7 +10,7 @@ export default function ProductSizePage() {
   return (
     <div className="space-y-6">
       <h1 className="text-4xl font-black tracking-tight border-b border-black pb-4">
-        Product Size Metrics
+        Product size metrics
       </h1>
       <motion.p 
         className="text-lg text-gray-600 font-mono mb-8"

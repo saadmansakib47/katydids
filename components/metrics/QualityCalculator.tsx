@@ -94,7 +94,6 @@ export function QualityCalculator() {
         const { loc: rawLoc, n1, n2, N1, N2, ccMode, e, n, P, d } = productParsed;
         
         // Halstead Volume V = (n1+n2) * log2(n1+n2)
-        // Wait, I already calculate it in the other component, but let's re-calc
         const h_n = n1 + n2;
         const h_N = N1 + N2;
         const h_V = h_n > 0 ? h_N * Math.log2(h_n) : 0;
