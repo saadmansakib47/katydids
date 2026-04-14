@@ -10,9 +10,9 @@ const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, active: true },
   { name: "Product Size Metrics", href: "/dashboard/product-size", icon: Ruler, active: true },
   { name: "Coupling Metrics", href: "/dashboard/coupling", icon: LinkIcon, active: true },
-  { name: "Effort Metrics", href: "#", icon: Briefcase, active: false },
-  { name: "Cost Metrics", href: "#", icon: DollarSign, active: false },
-  { name: "Quality Metrics", href: "#", icon: Award, active: false },
+  { name: "Effort Metrics", href: "/dashboard/effort", icon: Briefcase, active: true },
+  { name: "Cost Metrics", href: "/dashboard/cost", icon: DollarSign, active: true },
+  { name: "Quality Metrics", href: "/dashboard/quality", icon: Award, active: true },
 ];
 
 export function Sidebar() {
