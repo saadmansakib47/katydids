@@ -142,7 +142,7 @@ export function QualityCalculator() {
             icon={Gauge}
             value={mi.toFixed(2)} 
             good={mi > 40}
-            comment={mi > 60 ? "Highly maintainable 🚀" : mi > 20 ? "Maintainable with care ⚠️" : "Difficult to maintain ❌"}
+            comment={mi > 60 ? "Highly maintainable." : mi > 20 ? "Maintainable with care." : "Difficult to maintain."}
             tooltip="Proprietary metric measuring relative maintainability (SEI model)."
           />
           <ResultCard 
@@ -150,7 +150,7 @@ export function QualityCalculator() {
             icon={ShieldAlert}
             value={`${defectDensity.toFixed(2)} / KLOC`} 
             good={defectDensity < 5}
-            comment={defectDensity < 2 ? "High quality code! ✅" : defectDensity < 10 ? "Average quality" : "Critical defect rate ⚠️"}
+            comment={defectDensity < 2 ? "High quality code." : defectDensity < 10 ? "Average quality" : "Critical defect rate."}
             tooltip="Number of defects per 1000 lines of code."
           />
         </div>
