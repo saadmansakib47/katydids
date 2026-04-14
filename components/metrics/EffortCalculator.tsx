@@ -61,10 +61,11 @@ export function EffortCalculator() {
       time: 1.0, stor: 1.0, virt: 1.0, turn: 1.0, // Platform attributes
       acap: 1.0, aexp: 1.0, pcap: 1.0, vexp: 1.0, lexp: 1.0, // Personnel attributes
       modp: 1.0, tool: 1.0, sced: 1.0 // Project attributes
-    }
+    },
+    isModeFocused: false
   });
 
-  const { kloc, mode, drivers, showDrivers } = state;
+  const { kloc, mode, drivers, showDrivers, isModeFocused } = state;
 
   // Calculate product of drivers for EAF
   const calculatedEaf = Object.values(drivers).reduce((acc, val) => acc * val, 1);
@@ -116,15 +117,24 @@ export function EffortCalculator() {
           />
           <div className="flex flex-col space-y-2 font-mono">
             <label className="text-xs font-bold uppercase tracking-wider">Project Mode</label>
-            <select 
-              value={mode} 
-              onChange={(e) => setState(p => ({ ...p, mode: e.target.value as any }))}
-              className="border border-black p-2 bg-white text-lg h-[46px] outline-none"
-            >
-              <option value="organic">Organic (Simple, small teams)</option>
-              <option value="semidetached">Semi-detached (Medium, mixed experience)</option>
-              <option value="embedded">Embedded (Complex, rigid constraints)</option>
-            </select>
+            <div className="relative">
+              <select 
+                value={mode} 
+                onChange={(e) => setState(p => ({ ...p, mode: e.target.value as any }))}
+                onFocus={() => setState(p => ({ ...p, isModeFocused: true }))}
+                onBlur={() => setState(p => ({ ...p, isModeFocused: false }))}
+                className="border border-black p-2 bg-white text-lg h-[46px] outline-none appearance-none w-full pr-10 cursor-pointer"
+              >
+                <option value="organic">Organic (Simple, small teams)</option>
+                <option value="semidetached">Semi-detached (Medium, mixed experience)</option>
+                <option value="embedded">Embedded (Complex, rigid constraints)</option>
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <motion.div animate={{ rotate: isModeFocused ? 180 : 0 }} transition={{ duration: 0.3 }}>
+                  <ChevronDown size={18} />
+                </motion.div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -206,6 +216,7 @@ export function EffortCalculator() {
 }
 
 function DriverSelect({ label, value, onChange }: { label: string, value: number, onChange: (v: number) => void }) {
+  const [isFocused, setIsFocused] = useState(false);
   const options = [
     { label: 'Very Low', val: 0.75 },
     { label: 'Low', val: 0.88 },
@@ -218,13 +229,22 @@ function DriverSelect({ label, value, onChange }: { label: string, value: number
   return (
     <div className="flex flex-col space-y-1 font-mono">
       <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500">{label}</label>
-      <select 
-        value={value} 
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="border border-black p-1 text-xs bg-white outline-none"
-      >
-        {options.map(opt => <option key={opt.label} value={opt.val}>{opt.label} ({opt.val})</option>)}
-      </select>
+      <div className="relative">
+        <select 
+          value={value} 
+          onChange={(e) => onChange(Number(e.target.value))}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          className="border border-black p-1 text-xs bg-white outline-none appearance-none w-full pr-6 cursor-pointer"
+        >
+          {options.map(opt => <option key={opt.label} value={opt.val}>{opt.label} ({opt.val})</option>)}
+        </select>
+        <div className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none">
+          <motion.div animate={{ rotate: isFocused ? 180 : 0 }} transition={{ duration: 0.3 }}>
+            <ChevronDown size={12} />
+          </motion.div>
+        </div>
+      </div>
     </div>
   );
 }

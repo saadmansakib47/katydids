@@ -48,7 +48,7 @@ export default function LandingPage() {
             href="/dashboard"
             className="inline-flex items-center justify-center gap-2 rounded-[6px] bg-black text-white hover:bg-gray-800 px-8 py-4 text-lg font-medium transition-colors border border-black"
           >
-            Enter Dashboard
+            Start Measuring
             <ArrowRight className="w-5 h-5" />
           </Link>
         </motion.div>

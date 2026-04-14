@@ -67,9 +67,10 @@ export function CostCalculator() {
     currency: "USD",
     afp: 450,
     loc: 5000,
+    isCurrencyFocused: false
   });
 
-  const { personMonths, monthlyRate, currency, afp, loc } = state;
+  const { personMonths, monthlyRate, currency, afp, loc, isCurrencyFocused } = state;
 
   const totalCost = personMonths * monthlyRate;
   const costPerFp = afp > 0 ? totalCost / afp : 0;
@@ -174,7 +175,9 @@ export function CostCalculator() {
               <select 
                 value={currency} 
                 onChange={(e) => setState(p => ({ ...p, currency: e.target.value }))}
-                className="border border-black p-2 bg-white text-lg h-[46px] outline-none appearance-none w-full pr-10"
+                onFocus={() => setState(p => ({ ...p, isCurrencyFocused: true }))}
+                onBlur={() => setState(p => ({ ...p, isCurrencyFocused: false }))}
+                className="border border-black p-2 bg-white text-lg h-[46px] outline-none appearance-none w-full pr-10 cursor-pointer"
               >
                 <option value="USD">USD ($)</option>
                 <option value="EUR">EUR (€)</option>
@@ -183,7 +186,9 @@ export function CostCalculator() {
                 <option value="BDT">BDT (৳)</option>
               </select>
               <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                <ChevronDown size={18} />
+                <motion.div animate={{ rotate: isCurrencyFocused ? 180 : 0 }} transition={{ duration: 0.3 }}>
+                  <ChevronDown size={18} />
+                </motion.div>
               </div>
             </div>
           </div>

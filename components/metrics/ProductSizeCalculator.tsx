@@ -65,11 +65,12 @@ export function ProductSizeCalculator() {
       eq: { count: 0, comp: 'avg' }
     },
     tdi: 35, showFpaTable: false,
-    ccMode: "edges" as "edges" | "decision", e: 10, n: 8, P: 1, d: 3, showCcTable: false
+    ccMode: "edges" as "edges" | "decision", e: 10, n: 8, P: 1, d: 3, showCcTable: false,
+    focusedSelect: null as string | null
   };
 
   const [state, setState] = useState(defaultState);
-  const { loc, cloc, locL1, locL2, showQsm, n1, n2, N1, N2, fpa, tdi, showFpaTable, ccMode, e, n, P, d, showCcTable } = state;
+  const { loc, cloc, locL1, locL2, showQsm, n1, n2, N1, N2, fpa, tdi, showFpaTable, ccMode, e, n, P, d, showCcTable, focusedSelect } = state;
 
   const setLoc = (loc: number) => setState(p => ({ ...p, loc }));
   const setCloc = (cloc: number) => setState(p => ({ ...p, cloc }));
@@ -298,15 +299,24 @@ export function ProductSizeCalculator() {
                       <label className="text-xs font-bold uppercase tracking-wider flex justify-between">
                         Weight
                       </label>
-                      <select 
-                        value={fpa[k].comp} 
-                        onChange={(evt) => setFpa((p: any) => ({...p, [k]: { ...p[k], comp: evt.target.value }}))}
-                        className="border border-black p-2 bg-white text-lg h-[46px] outline-none"
-                      >
-                        <option value="low">Low</option>
-                        <option value="avg">Average</option>
-                        <option value="high">High</option>
-                      </select>
+                      <div className="relative">
+                        <select 
+                          value={fpa[k].comp} 
+                          onChange={(evt) => setFpa((p: any) => ({...p, [k]: { ...p[k], comp: evt.target.value }}))}
+                          onFocus={() => setState(p => ({ ...p, focusedSelect: k }))}
+                          onBlur={() => setState(p => ({ ...p, focusedSelect: null }))}
+                          className="border border-black p-2 bg-white text-lg h-[46px] outline-none appearance-none w-full pr-10 cursor-pointer"
+                        >
+                          <option value="low">Low</option>
+                          <option value="avg">Average</option>
+                          <option value="high">High</option>
+                        </select>
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                          <motion.div animate={{ rotate: focusedSelect === k ? 180 : 0 }} transition={{ duration: 0.3 }}>
+                            <ChevronDown size={18} />
+                          </motion.div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}
