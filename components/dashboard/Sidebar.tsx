@@ -34,7 +34,7 @@ export function Sidebar() {
       >
         <div className="p-6 border-b border-black">
           <Link href="/" className="flex items-center gap-3" onClick={() => setIsOpen(false)}>
-            <Image src="/assets/katydids-logo.png" alt="Katydids Logo" width={28} height={28} className="object-contain" priority />
+            <Image src="/assets/katydids-logo.png" alt="Katydids Logo" width={42} height={42} className="object-contain" priority />
             <span className="text-2xl font-black tracking-tight">Katydids.</span>
           </Link>
         </div>
@@ -64,7 +64,7 @@ export function Sidebar() {
                     <span className="font-medium text-sm">{item.name}</span>
                   </div>
                   <span className="text-[10px] uppercase font-bold bg-white text-gray-500 px-2 py-1 border border-gray-300">
-                    Sprint 2
+                    Upcoming
                   </span>
                 </div>
               )}

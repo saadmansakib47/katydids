@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, AlertTriangle, Info, ChevronDown, ChevronUp, Plus, Trash2, HelpCircle } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Info, ChevronDown, Plus, Trash2, HelpCircle } from "lucide-react";
 import { Tooltip } from "@/components/ui/Tooltip";
 
 const Input = ({ label, value, onChange, min = "0", max, step = "1", className = "", tooltip }: any) => (
@@ -148,11 +148,19 @@ export function CouplingCalculator() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-6 py-4 font-bold text-sm tracking-widest whitespace-nowrap uppercase border-b-4 transition-colors ${
-              activeTab === tab.id ? "border-black bg-white text-black" : "border-transparent text-gray-500 hover:bg-gray-200"
+            className={`relative px-6 py-4 font-bold text-sm tracking-widest whitespace-nowrap uppercase border-b-[4px] border-transparent transition-colors ${
+              activeTab === tab.id ? "bg-white text-black" : "text-gray-500 hover:bg-gray-200"
             }`}
           >
             {tab.label}
+            {activeTab === tab.id && (
+              <motion.div
+                className="absolute left-0 -bottom-[4px] h-[4px] bg-black"
+                initial={{ width: "0%" }}
+                animate={{ width: "100%" }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+              />
+            )}
           </button>
         ))}
       </div>
@@ -268,7 +276,9 @@ export function CouplingCalculator() {
                 onClick={() => setShowDitTable(!showDitTable)}
                 className="flex items-center gap-2 bg-white text-black px-4 py-2 border border-black hover:bg-gray-100 font-bold uppercase tracking-wider text-xs"
               >
-                {showDitTable ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                <motion.div animate={{ rotate: showDitTable ? 180 : 0 }} transition={{ duration: 0.3 }}>
+                  <ChevronDown size={16} />
+                </motion.div>
                 DIT Assessment Table
               </button>
               {showDitTable && (
