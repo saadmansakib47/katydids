@@ -219,7 +219,7 @@ export function ProductSizeCalculator() {
               <ResultCard 
                 title="Comment Density" 
                 value={(commentDensity * 100).toFixed(1) + "%"} 
-                comment={commentDensity > 0.2 ? "Good maintainability 🎯" : "More comments needed ⚠️"} 
+                comment={commentDensity > 0.2 ? "Good maintainability" : "More comments needed"} 
                 good={commentDensity > 0.2}
                 tooltip="High comment density corresponds to better maintainability and testability."
               />
@@ -242,9 +242,7 @@ export function ProductSizeCalculator() {
                 onClick={() => setShowQsm(!showQsm)}
                 className="flex items-center gap-2 bg-white text-black px-4 py-2 border border-black hover:bg-gray-100 font-bold uppercase tracking-wider text-xs"
               >
-                <motion.div animate={{ rotate: showQsm ? 180 : 0 }} transition={{ duration: 0.3 }}>
-                  <ChevronDown size={16} />
-                </motion.div>
+                <ChevronDown size={16} className={`transition-transform duration-300 ${showQsm ? "rotate-180" : ""}`} />
                 QSM SLOC/FP Data Table
               </button>
               {showQsm && (
@@ -329,9 +327,7 @@ export function ProductSizeCalculator() {
                 onClick={() => setShowFpaTable(!showFpaTable)}
                 className="flex items-center gap-2 bg-white text-black px-4 py-2 border border-black hover:bg-gray-100 font-bold uppercase tracking-wider text-xs"
               >
-                <motion.div animate={{ rotate: showFpaTable ? 180 : 0 }} transition={{ duration: 0.3 }}>
-                  <ChevronDown size={16} />
-                </motion.div>
+                <ChevronDown size={16} className={`transition-transform duration-300 ${showFpaTable ? "rotate-180" : ""}`} />
                 Weighing Factor Table
               </button>
               {showFpaTable && (
@@ -377,27 +373,25 @@ export function ProductSizeCalculator() {
               <ResultCard 
                 title="Cyclomatic Complexity V(G)" 
                 value={cc} 
-                comment={cc <= 10 ? "Simple, high testability 🚀" : cc <= 20 ? "Moderate risk ⚠️" : "Complex, high cost & effort ❌"} 
+                comment={cc <= 10 ? "Simple, high testability." : cc <= 20 ? "Moderate risk." : "Complex, high cost & effort." } 
                 good={cc <= 10 ? true : cc <= 20 ? undefined : false}
                 tooltip="Identifies the number of independent paths through the code. Higher CC means harder to test and maintain."
               />
               <ResultCard 
                 title="Complexity Density (CCD)" 
                 value={ccd.toFixed(4)} 
-                comment={ccd < 0.14 ? "Lower CCD, higher maintenance productivity ✅" : "High CCD, difficult maintenance ⚠️"} 
+                comment={ccd < 0.14 ? "Lower CCD, higher maintenance productivity." : "High CCD, difficult maintenance."} 
                 good={ccd < 0.14}
                 tooltip="CC / LOC. Helps normalize complexity across heavily disjoint program lengths."
               />
             </div>
 
              <div className="pt-4 flex gap-4">
-              <button 
+              <button     
                 onClick={() => setShowCcTable(!showCcTable)}
                 className="flex items-center gap-2 bg-white text-black px-4 py-2 border border-black hover:bg-gray-100 font-bold uppercase tracking-wider text-xs"
               >
-                <motion.div animate={{ rotate: showCcTable ? 180 : 0 }} transition={{ duration: 0.3 }}>
-                  <ChevronDown size={16} />
-                </motion.div>
+                <ChevronDown size={16} className={`transition-transform duration-300 ${showCcTable ? "rotate-180" : ""}`} />
                 Complexity Classification & Impact Tables
               </button>
             </div>

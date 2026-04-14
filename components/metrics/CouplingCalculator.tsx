@@ -178,20 +178,20 @@ export function CouplingCalculator() {
               <ResultCard 
                 title="Tight Class Cohesion (TCC)" 
                 value={tcc.toFixed(2)} 
-                comment={tcc >= 0.5 ? "Good tight class cohesion 🎯" : "Low cohesion, consider refactoring ⚠️"} 
+                comment={tcc >= 0.5 ? "Good tight class cohesion." : "Low cohesion, consider refactoring."} 
                 good={tcc >= 0.5}
                 tooltip="TCC targets strictly direct interaction. High TCC means methods share instance variables inherently."
               />
               <ResultCard 
                 title="Loose Class Cohesion (LCC)" 
                 value={lcc.toFixed(2)} 
-                comment={lcc >= 0.5 ? "Good loose architecture ✅" : "Class is poorly connected internally ⚠️"}
+                comment={lcc >= 0.5 ? "Good loose architecture. " : "Class is poorly connected internally."}
                 good={lcc >= 0.5} 
                 tooltip="LCC includes indirect invocations and variable usage, indicating broad cohesive nature."
               />
             </div>
             <div className="text-sm font-mono bg-gray-100 p-4 border border-black border-dashed">
-              <span className="font-bold">Sprint 02 Preview:</span> In Sprint 02, we plan to extract NDC, NIC, NP from uploaded files automatically.
+              <span className="font-bold">Upcoming : </span> Extract NDC, NIC, NP from uploaded files automatically.
             </div>
           </div>
         )}
@@ -276,9 +276,7 @@ export function CouplingCalculator() {
                 onClick={() => setShowDitTable(!showDitTable)}
                 className="flex items-center gap-2 bg-white text-black px-4 py-2 border border-black hover:bg-gray-100 font-bold uppercase tracking-wider text-xs"
               >
-                <motion.div animate={{ rotate: showDitTable ? 180 : 0 }} transition={{ duration: 0.3 }}>
-                  <ChevronDown size={16} />
-                </motion.div>
+                <ChevronDown size={16} className={`transition-transform duration-300 ${showDitTable ? "rotate-180" : ""}`} />
                 DIT Assessment Table
               </button>
               {showDitTable && (
